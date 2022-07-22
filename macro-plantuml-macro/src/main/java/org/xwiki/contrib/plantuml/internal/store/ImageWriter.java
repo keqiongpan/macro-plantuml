@@ -19,6 +19,7 @@
  */
 package org.xwiki.contrib.plantuml.internal.store;
 
+import java.io.File;
 import java.io.OutputStream;
 
 import org.xwiki.component.annotation.Role;
@@ -37,18 +38,30 @@ public interface ImageWriter
 {
     /**
      * @param imageId the image id that we use to generate a unique storage location
+     * @param imageFormat the image format that used as an image file extension.
      * @return the output stream into which to write to save the image data to disk
      * @throws MacroExecutionException if the target file cannot be created (already exists and is a directory, etc)
      */
-    OutputStream getOutputStream(String imageId) throws MacroExecutionException;
+    OutputStream getOutputStream(String imageId, String imageFormat) throws MacroExecutionException;
+
+    /**
+     * Compute the location where to store the generated image.
+     *
+     * @param imageId the image id that we use to generate a storage location
+     * @param imageFormat the image format that used as an image file extension.
+     * @return the location where to store the generated image
+     * @throws MacroExecutionException if an error happened when computing the location
+     */
+    File getStorageLocation(String imageId, String imageFormat) throws MacroExecutionException;
 
     /**
      * Compute the URL to use to access the stored generate chart image.
      *
      * @param imageId the image id for the image that we have stored
+     * @param imageFormat the image format that used as an image file extension.
      * @return the URL to use to access the stored generate chart image
      * @throws MacroExecutionException if an error happened when computing the URL (eg if the current wiki cannot be
      *         computed)
      */
-    ExtendedURL getURL(String imageId) throws MacroExecutionException;
+    ExtendedURL getURL(String imageId, String imageFormat) throws MacroExecutionException;
 }

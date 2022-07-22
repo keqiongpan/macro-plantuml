@@ -52,6 +52,11 @@
       <id>vmassol</id>
       <name>Vincent Massol</name>
     </developer>
+    <developer>
+      <id>keqiongpan</id>
+      <name>Qiongpan Ke</name>
+      <email>keqiongpan@163.com</email>
+    </developer>
   </developers>
   <properties>
     <xwiki.issueManagement.jira.id>PLANTUML</xwiki.issueManagement.jira.id>

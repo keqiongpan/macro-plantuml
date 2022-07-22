@@ -69,10 +69,10 @@ public class TemporaryImageWriter implements ImageWriter
     private ResourceReferenceSerializer<TemporaryResourceReference, ExtendedURL> temporaryResourceSerializer;
 
     @Override
-    public OutputStream getOutputStream(String imageId) throws MacroExecutionException
+    public OutputStream getOutputStream(String imageId, String imageFormat) throws MacroExecutionException
     {
         OutputStream result;
-        File imageFile = getStorageLocation(imageId);
+        File imageFile = getStorageLocation(imageId, imageFormat);
         // Make sure that the directory exist
         imageFile.getParentFile().mkdirs();
         try {
@@ -84,16 +84,10 @@ public class TemporaryImageWriter implements ImageWriter
         return result;
     }
 
-    /**
-     * Compute the location where to store the generated image.
-     *
-     * @param imageId the image id that we use to generate a storage location
-     * @return the location where to store the generated image
-     * @throws MacroExecutionException if an error happened when computing the location
-     */
-    protected File getStorageLocation(String imageId) throws MacroExecutionException
+    @Override
+    public File getStorageLocation(String imageId, String imageFormat) throws MacroExecutionException
     {
-        TemporaryResourceReference resourceReference = getTemporaryResourceReference(imageId);
+        TemporaryResourceReference resourceReference = getTemporaryResourceReference(imageId, imageFormat);
         try {
             return this.temporaryResourceStore.getTemporaryFile(resourceReference);
         } catch (IOException e) {
@@ -103,9 +97,9 @@ public class TemporaryImageWriter implements ImageWriter
     }
 
     @Override
-    public ExtendedURL getURL(String imageId) throws MacroExecutionException
+    public ExtendedURL getURL(String imageId, String imageFormat) throws MacroExecutionException
     {
-        TemporaryResourceReference resourceReference = getTemporaryResourceReference(imageId);
+        TemporaryResourceReference resourceReference = getTemporaryResourceReference(imageId, imageFormat);
         try {
             return this.temporaryResourceSerializer.serialize(resourceReference);
         } catch (SerializeResourceReferenceException | UnsupportedResourceReferenceException e) {
@@ -114,9 +108,9 @@ public class TemporaryImageWriter implements ImageWriter
         }
     }
 
-    private TemporaryResourceReference getTemporaryResourceReference(String imageId)
+    private TemporaryResourceReference getTemporaryResourceReference(String imageId, String imageFormat)
     {
-        return new TemporaryResourceReference(MODULE_ID, String.format("%s.png", imageId),
+        return new TemporaryResourceReference(MODULE_ID, String.format("%s.%s", imageId, imageFormat),
             this.documentAccessBridge.getCurrentDocumentReference());
     }
 }

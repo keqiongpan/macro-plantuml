@@ -32,6 +32,7 @@ import org.xwiki.properties.annotation.PropertyDescription;
 public class PlantUMLMacroParameters
 {
     private String serverURL;
+    private ImageFormat imageFormat;
 
     /**
      * @param serverURL see {@link #getServer()}
@@ -50,6 +51,23 @@ public class PlantUMLMacroParameters
         return this.serverURL;
     }
 
+    /**
+     * @param imageFormat see {@link ImageFormat}
+     */
+    @PropertyDescription("the PlantUML Image Format")
+    public void setFormat(ImageFormat imageFormat)
+    {
+        this.imageFormat = imageFormat;
+    }
+
+    /**
+     * @return the (optional) PlantUML image format.
+     */
+    public ImageFormat getFormat()
+    {
+        return this.imageFormat;
+    }
+
     @Override
     public boolean equals(Object object)
     {
@@ -65,6 +83,7 @@ public class PlantUMLMacroParameters
         PlantUMLMacroParameters rhs = (PlantUMLMacroParameters) object;
         return new EqualsBuilder()
             .append(getServer(), rhs.getServer())
+            .append(getFormat(), rhs.getFormat())
             .isEquals();
     }
 
@@ -73,6 +92,7 @@ public class PlantUMLMacroParameters
     {
         return new HashCodeBuilder(5, 37)
             .append(getServer())
+            .append(getFormat())
             .toHashCode();
     }
 }

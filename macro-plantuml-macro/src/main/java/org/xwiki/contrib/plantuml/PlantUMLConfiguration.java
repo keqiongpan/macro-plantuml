@@ -34,4 +34,9 @@ public interface PlantUMLConfiguration
      * @return the (optional) PlantUML server URL (e.g. {@code http://www.plantuml.com/plantuml}) or null if not defined
      */
     String getPlantUMLServerURL();
+
+    /**
+     * @return the (optional) PlantUML image format.
+     */
+    String getPlantUMLImageFormat();
 }

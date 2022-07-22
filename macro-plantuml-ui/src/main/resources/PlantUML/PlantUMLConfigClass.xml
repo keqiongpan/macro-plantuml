@@ -51,7 +51,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>server</name>
-      <number>5</number>
+      <number>1</number>
       <picker>1</picker>
       <prettyName>PlantUML Server URL</prettyName>
       <size>30</size>
@@ -60,5 +60,30 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </server>
+    <format>
+      <cache>0</cache>
+      <customDisplay/>
+      <defaultValue>png</defaultValue>
+      <disabled>0</disabled>
+      <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
+      <multiSelect>0</multiSelect>
+      <name>format</name>
+      <number>2</number>
+      <picker>1</picker>
+      <prettyName>PlantUML Image Format</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort/>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>png|svg|txt</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </format>
   </class>
 </xwikidoc>

@@ -42,7 +42,9 @@ public interface PlantUMLGenerator
      *        empty string or not null then the URL is called to get the generated image. Otherwise PlantUML works in
      *        embedded mode (requires installation of Graphviz locally for most diagram types, and the {@code
      *        GRAPHVIZ_DOT} environment variable must be set to point to the path of the GraphViz executable).
+     * @param imageFormat the optional plantUML image format, add to serverURL (e.g.
+     *        {@code http://www.plantuml.com/plantuml/png}) to generate image in the corresponding format.
      * @throws IOException when there's a generation or writing error
      */
-    void outputImage(String input, OutputStream output, String serverURL) throws IOException;
+    void outputImage(String input, OutputStream output, String serverURL, String imageFormat) throws IOException;
 }

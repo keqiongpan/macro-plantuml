@@ -26,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 
 import javax.inject.Singleton;
 
+import net.sourceforge.plantuml.FileFormat;
+import net.sourceforge.plantuml.FileFormatOption;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -35,6 +37,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.poi.util.IOUtils;
 import org.xwiki.component.annotation.Component;
+import org.xwiki.contrib.plantuml.ImageFormat;
 import org.xwiki.contrib.plantuml.PlantUMLGenerator;
 
 import net.sourceforge.plantuml.SourceStringReader;
@@ -56,16 +59,20 @@ public class DefaultPlantUMLGenerator implements PlantUMLGenerator
     private AsciiEncoder asciiEncoder = new AsciiEncoder();
 
     @Override
-    public void outputImage(String input, OutputStream outputStream, String serverURL) throws IOException
+    public void outputImage(String input, OutputStream outputStream, String serverURL, String imageFormat)
+            throws IOException
     {
         if (StringUtils.isEmpty(serverURL)) {
-            new SourceStringReader(input).outputImage(outputStream);
+            FileFormat fileFormat = ImageFormat.valueOf(imageFormat).getFileFormat();
+            FileFormatOption formatOption = new FileFormatOption(fileFormat);
+            new SourceStringReader(input).outputImage(outputStream, formatOption);
         } else {
             // Call the remote server, by passing the input text compressed and encoded, see
             // https://plantuml.com/text-encoding
             String compressedInput = this.asciiEncoder.encode(
                 this.compressor.compress(input.getBytes(StandardCharsets.UTF_8)));
-            String fullURL = String.format("%s/png/~1%s", StringUtils.removeEnd(serverURL, "/"), compressedInput);
+            String fullURL = String.format("%s/%s/~1%s",
+                    StringUtils.removeEnd(serverURL, "/"), imageFormat, compressedInput);
             // Call the server and get the response
             try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
                 HttpGet httpGet = new HttpGet(fullURL);

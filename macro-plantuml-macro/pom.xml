@@ -113,4 +113,23 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.revapi</groupId>
+        <artifactId>revapi-maven-plugin</artifactId>
+        <configuration>
+          <analysisConfiguration>
+            <revapi.filter>
+              <archives>
+                <exclude>
+                  <item>org\.xwiki\.contrib\.plantuml:.*</item>
+                </exclude>
+              </archives>
+            </revapi.filter>
+          </analysisConfiguration>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
