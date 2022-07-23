@@ -32,23 +32,37 @@ public enum ImageFormat
     /**
      * PNG image format.
      */
-    png(FileFormat.PNG),
+    png("png", FileFormat.PNG),
 
     /**
      * SVG image format.
      */
-    svg(FileFormat.SVG),
+    svg("svg", FileFormat.SVG),
+
+    /**
+     * SVG xhtml format.
+     */
+    svg_xml("svg", FileFormat.SVG),
 
     /**
      * Plaintext format.
      */
-    txt(FileFormat.UTXT);
+    txt("txt", FileFormat.UTXT);
 
+    private final String requestType;
     private final FileFormat fileFormat;
 
-    ImageFormat(FileFormat fileFormat)
+    ImageFormat(String requestType, FileFormat fileFormat)
     {
+        this.requestType = requestType;
         this.fileFormat = fileFormat;
+    }
+
+    /**
+     * @return return PlantUML Server request type.
+     */
+    public String getRequestType() {
+        return this.requestType;
     }
 
     /**
@@ -56,6 +70,6 @@ public enum ImageFormat
      */
     public FileFormat getFileFormat()
     {
-        return fileFormat;
+        return this.fileFormat;
     }
 }

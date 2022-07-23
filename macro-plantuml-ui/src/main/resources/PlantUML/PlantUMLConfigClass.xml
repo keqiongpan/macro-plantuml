@@ -82,7 +82,7 @@
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>png|svg|txt</values>
+      <values>png|svg|svg_xml|txt</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </format>
   </class>

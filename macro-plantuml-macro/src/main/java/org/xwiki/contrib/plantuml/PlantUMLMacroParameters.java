@@ -22,6 +22,7 @@ package org.xwiki.contrib.plantuml;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.xwiki.properties.annotation.PropertyDescription;
+import org.xwiki.properties.annotation.PropertyHidden;
 
 /**
  * Parameters for the {@link org.xwiki.contrib.plantuml.internal.PlantUMLMacro} Macro.
@@ -37,6 +38,7 @@ public class PlantUMLMacroParameters
     /**
      * @param serverURL see {@link #getServer()}
      */
+    @PropertyHidden
     @PropertyDescription("the PlantUML Server URL")
     public void setServer(String serverURL)
     {
@@ -54,6 +56,7 @@ public class PlantUMLMacroParameters
     /**
      * @param imageFormat see {@link ImageFormat}
      */
+    @PropertyHidden
     @PropertyDescription("the PlantUML Image Format")
     public void setFormat(ImageFormat imageFormat)
     {

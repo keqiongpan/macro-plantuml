@@ -62,8 +62,9 @@ public class DefaultPlantUMLGenerator implements PlantUMLGenerator
     public void outputImage(String input, OutputStream outputStream, String serverURL, String imageFormat)
             throws IOException
     {
+        ImageFormat imageFormatDesc = ImageFormat.valueOf(imageFormat);
         if (StringUtils.isEmpty(serverURL)) {
-            FileFormat fileFormat = ImageFormat.valueOf(imageFormat).getFileFormat();
+            FileFormat fileFormat = imageFormatDesc.getFileFormat();
             FileFormatOption formatOption = new FileFormatOption(fileFormat);
             new SourceStringReader(input).outputImage(outputStream, formatOption);
         } else {
@@ -72,7 +73,7 @@ public class DefaultPlantUMLGenerator implements PlantUMLGenerator
             String compressedInput = this.asciiEncoder.encode(
                 this.compressor.compress(input.getBytes(StandardCharsets.UTF_8)));
             String fullURL = String.format("%s/%s/~1%s",
-                    StringUtils.removeEnd(serverURL, "/"), imageFormat, compressedInput);
+                    StringUtils.removeEnd(serverURL, "/"), imageFormatDesc.getRequestType(), compressedInput);
             // Call the server and get the response
             try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
                 HttpGet httpGet = new HttpGet(fullURL);

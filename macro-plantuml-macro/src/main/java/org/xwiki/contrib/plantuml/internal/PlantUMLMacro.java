@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,6 +33,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.plantuml.ImageFormat;
 import org.xwiki.contrib.plantuml.PlantUMLConfiguration;
@@ -46,7 +46,8 @@ import org.xwiki.rendering.block.Block;
 import org.xwiki.rendering.block.CompositeBlock;
 import org.xwiki.rendering.block.GroupBlock;
 import org.xwiki.rendering.block.ImageBlock;
-import org.xwiki.rendering.block.MacroBlock;
+import org.xwiki.rendering.block.RawBlock;
+import org.xwiki.rendering.block.VerbatimBlock;
 import org.xwiki.rendering.listener.reference.ResourceReference;
 import org.xwiki.rendering.listener.reference.ResourceType;
 import org.xwiki.rendering.macro.AbstractMacro;
@@ -125,23 +126,28 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
         rendererConfiguration.setContextEntries(Collections.singleton("doc.reference"));
 
         // Execute the renderer
-        Block result;
+        List<Block> blocks;
         try {
-            result = this.executor.execute(renderer, rendererConfiguration);
+            if (context.isInline()) {
+                blocks = executeSync(content, parameters, context.isInline());
+            } else {
+                Block result = this.executor.execute(renderer, rendererConfiguration);
+                blocks = result instanceof CompositeBlock ? result.getChildren() : Collections.singletonList(result);
+            }
         } catch (Exception e) {
             throw new MacroExecutionException(String.format("Failed to execute the PlantUML macro for content [%s]",
                 content), e);
         }
 
-        return result instanceof CompositeBlock ? result.getChildren() : Arrays.asList(result);
+        return blocks;
     }
 
     List<Block> executeSync(String content, PlantUMLMacroParameters parameters, boolean isInline)
         throws MacroExecutionException
     {
-        String imageId = getImageId(content);
-        String imageFormat = computeFormat(parameters);
         String serverUrl = computeServer(parameters);
+        String imageFormat = computeFormat(parameters);
+        String imageId = getImageId(imageFormat, content);
 
         try (OutputStream os = this.imageWriter.getOutputStream(imageId, imageFormat)) {
             this.plantUMLGenerator.outputImage(content, os, serverUrl, imageFormat);
@@ -151,11 +157,11 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
         }
 
         // Return the image block pointing to the generated image.
-        Block resultBlock = null;
-        if (ImageFormat.svg.name().equals(imageFormat) || ImageFormat.txt.name().equals(imageFormat)) {
+        Block resultBlock;
+        if (ImageFormat.svg_xml.name().equals(imageFormat) || ImageFormat.txt.name().equals(imageFormat)) {
             // Read image file content.
             File imageFile = this.imageWriter.getStorageLocation(imageId, imageFormat);
-            String imageContent = null;
+            String imageContent;
             try (FileInputStream is = new FileInputStream(imageFile)) {
                 byte[] imageBytes = IOUtils.readFully(is, (int) imageFile.length());
                 imageContent = new String(imageBytes, StandardCharsets.UTF_8);
@@ -165,11 +171,10 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
             }
 
             // Create corresponding block to display the image content.
-            if (ImageFormat.svg.name().equals(imageFormat)) {
-                resultBlock = new MacroBlock("html", Collections.emptyMap(), imageContent, isInline);
+            if (ImageFormat.svg_xml.name().equals(imageFormat)) {
+                resultBlock = new RawBlock(imageContent, Syntax.XHTML_1_0);
             } else {
-                resultBlock = new MacroBlock("code",
-                        Collections.singletonMap("language", "plaintext"), imageContent, isInline);
+                resultBlock = new VerbatimBlock(imageContent, isInline);
             }
         } else {
             ResourceReference resourceReference =
@@ -177,11 +182,11 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
             resultBlock = new ImageBlock(resourceReference, false);
         }
 
-        // Wrap in a DIV if not inline (we need that since an IMG is an inline element otherwise)
-        if (!isInline) {
-            resultBlock = new GroupBlock(Arrays.asList(resultBlock));
+        // Wrap in a DIV if not inline (we need that since an IMG/SVG is an inline element otherwise)
+        if (!isInline && !ImageFormat.txt.name().equals(imageFormat)) {
+            resultBlock = new GroupBlock(Collections.singletonList(resultBlock));
         }
-        return Arrays.asList(resultBlock);
+        return Collections.singletonList(resultBlock);
     }
 
     private String computeServer(PlantUMLMacroParameters parameters)
@@ -208,8 +213,12 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
         return imageFormat;
     }
 
-    private String getImageId(String content)
+    private String getImageId(String... contents)
     {
-        return String.valueOf(content.hashCode());
+        HashCodeBuilder builder = new HashCodeBuilder();
+        for (String s : contents) {
+            builder.append(s);
+        }
+        return String.valueOf(builder.toHashCode());
     }
 }
