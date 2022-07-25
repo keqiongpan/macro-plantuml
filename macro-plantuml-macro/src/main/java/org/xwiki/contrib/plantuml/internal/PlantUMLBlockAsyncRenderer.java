@@ -27,6 +27,8 @@ import javax.inject.Provider;
 
 import com.xpn.xwiki.XWikiContext;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.plantuml.PlantUMLMacroParameters;
 import org.xwiki.model.reference.DocumentReference;
@@ -55,6 +57,8 @@ import org.xwiki.rendering.util.ErrorBlockGenerator;
 @Component(roles = PlantUMLBlockAsyncRenderer.class)
 public class PlantUMLBlockAsyncRenderer extends AbstractBlockAsyncRenderer
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlantUMLBlockAsyncRenderer.class);
+
     private static final String ESCAPE_CHAR_SLASH = "_";
 
     private static final String ESCAPE_CHAR_BACKSLASH = "-";
@@ -118,6 +122,13 @@ public class PlantUMLBlockAsyncRenderer extends AbstractBlockAsyncRenderer
         if (source != null) {
             this.sourceReference = this.resolver.resolve(source);
         }
+
+        LOGGER.warn("action: {}", action);
+        LOGGER.warn("targetSyntax: {}", this.targetSyntax == null ? "(null)" : this.targetSyntax.toIdString());
+        LOGGER.warn("isInline: {}", this.isInline);
+        LOGGER.warn("renderingImmediately: {}", this.renderingImmediately);
+        LOGGER.warn("source: {}", source);
+        LOGGER.warn("sourceReference: {}", this.sourceReference);
 
         this.id = createId(source, context);
     }
