@@ -19,10 +19,13 @@
  */
 package org.xwiki.contrib.plantuml.internal;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
+import com.xpn.xwiki.XWikiContext;
 import org.apache.commons.lang3.StringUtils;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.plantuml.PlantUMLMacroParameters;
@@ -39,6 +42,7 @@ import org.xwiki.rendering.block.match.MetadataBlockMatcher;
 import org.xwiki.rendering.listener.MetaData;
 import org.xwiki.rendering.macro.MacroExecutionException;
 import org.xwiki.rendering.syntax.Syntax;
+import org.xwiki.rendering.syntax.SyntaxType;
 import org.xwiki.rendering.transformation.MacroTransformationContext;
 import org.xwiki.rendering.util.ErrorBlockGenerator;
 
@@ -64,6 +68,9 @@ public class PlantUMLBlockAsyncRenderer extends AbstractBlockAsyncRenderer
     @Inject
     private ErrorBlockGenerator errorBlockGenerator;
 
+    @Inject
+    private Provider<XWikiContext> xwikiContextProvider;
+
     private List<String> id;
 
     private Syntax targetSyntax;
@@ -78,6 +85,8 @@ public class PlantUMLBlockAsyncRenderer extends AbstractBlockAsyncRenderer
 
     private boolean isInline;
 
+    private boolean renderingImmediately;
+
     void initialize(PlantUMLMacro macro, PlantUMLMacroParameters parameters, String content,
         MacroTransformationContext context)
     {
@@ -86,6 +95,24 @@ public class PlantUMLBlockAsyncRenderer extends AbstractBlockAsyncRenderer
         this.content = content;
         this.targetSyntax = context.getTransformationContext().getTargetSyntax();
         this.isInline = context.isInline();
+
+        if (this.targetSyntax == null) {
+            this.targetSyntax = this.renderingContext.getTargetSyntax();
+        }
+
+        if (this.targetSyntax != null) {
+            SyntaxType[] syntaxTypes = new SyntaxType[] {
+                    SyntaxType.ANNOTATED_HTML,
+                    SyntaxType.ANNOTATED_XHTML
+            };
+            this.renderingImmediately = Arrays.asList(syntaxTypes).contains(this.targetSyntax.getType());
+        }
+
+        XWikiContext xwikiContext = this.xwikiContextProvider.get();
+        String action = xwikiContext.getAction();
+        if (Arrays.asList("view", "preview").contains(action)) {
+            this.renderingImmediately = true;
+        }
 
         String source = getCurrentSource(context);
         if (source != null) {
@@ -119,6 +146,11 @@ public class PlantUMLBlockAsyncRenderer extends AbstractBlockAsyncRenderer
     public boolean isInline()
     {
         return this.isInline;
+    }
+
+    public boolean isRenderingImmediately()
+    {
+        return this.renderingImmediately;
     }
 
     @Override

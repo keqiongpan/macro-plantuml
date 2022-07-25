@@ -21,7 +21,9 @@ package org.xwiki.contrib.plantuml;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.xwiki.properties.annotation.PropertyAdvanced;
 import org.xwiki.properties.annotation.PropertyDescription;
+import org.xwiki.properties.annotation.PropertyDisplayType;
 
 /**
  * Parameters for the {@link org.xwiki.contrib.plantuml.internal.PlantUMLMacro} Macro.
@@ -33,10 +35,13 @@ public class PlantUMLMacroParameters
 {
     private String serverURL;
     private ImageFormat imageFormat;
+    private boolean imageTag;
+    private boolean scaleFit;
 
     /**
      * @param serverURL see {@link #getServer()}
      */
+    @PropertyAdvanced
     @PropertyDescription("the PlantUML Server URL")
     public void setServer(String serverURL)
     {
@@ -54,6 +59,7 @@ public class PlantUMLMacroParameters
     /**
      * @param imageFormat see {@link ImageFormat}
      */
+    @PropertyDisplayType(ImageFormat.class)
     @PropertyDescription("the PlantUML Image Format")
     public void setFormat(ImageFormat imageFormat)
     {
@@ -66,6 +72,38 @@ public class PlantUMLMacroParameters
     public ImageFormat getFormat()
     {
         return this.imageFormat;
+    }
+
+    /**
+     * @param scaleFit see {@link #isScaleFit()}
+     */
+    @PropertyDescription("Fit SVG Image to Page Width Limit")
+    public void setScaleFit(boolean scaleFit) {
+        this.scaleFit = scaleFit;
+        this.imageTag = this.imageTag && !scaleFit;
+    }
+
+    /**
+     * @return {@code true} if fit SVG image to page width limit.
+     */
+    public boolean isScaleFit() {
+        return scaleFit;
+    }
+
+    /**
+     * @param imageTag see {@link #isImageTag()}
+     */
+    @PropertyDescription("Use <img/> For SVG Image")
+    public void setImageTag(boolean imageTag) {
+        this.imageTag = imageTag;
+        this.scaleFit = this.scaleFit && !imageTag;
+    }
+
+    /**
+     * @return {@code true} if use &lt;img/&gt; for SVG image.
+     */
+    public boolean isImageTag() {
+        return imageTag;
     }
 
     @Override
