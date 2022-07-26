@@ -195,7 +195,8 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
                     Matcher svgMatcher = svgPattern.matcher(imageContent);
                     if (svgMatcher.find()) {
                         String svgTag = svgMatcher.group();
-                        svgTag = svgTag.replaceAll("(?i)\\b(width|height)\\b\\s*:[^;]*;", "$1:auto;max-$1:100%;");
+                        svgTag = svgTag.replaceAll("(?i)\\b(width)\\s*:[^;]*;", "max-$1:100%;");
+                        svgTag = svgTag.replaceAll("(?i)\\b(height)\\s*:[^;]*;", "$1:auto;");
                         imageContent = svgMatcher.replaceFirst(svgTag);
                     }
                 }
@@ -205,7 +206,7 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
                 isDisplayBlock = false;
             } else {
                 // Convert full-corner box drawing characters (U+2500~U+257F) to half-corner.
-                char[] boxDrawings = new char[] {
+                char[] asciiBoxDrawingCharacters = new char[] {
                         '-',    /* U+2500: ─ */
                         '-',    /* U+2501: ━ */
                         '|',    /* U+2502: │ */
@@ -321,7 +322,7 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
                         '`',    /* U+2570: ╰ */
                         '/',    /* U+2571: ╱ */
                         '\\',    /* U+2572: ╲ */
-                        '"',    /* U+2573: ╳ */
+                        'X',    /* U+2573: ╳ */
                         '-',    /* U+2574: ╴ */
                         '|',    /* U+2575: ╵ */
                         '-',    /* U+2576: ╶ */
@@ -337,25 +338,38 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
                 };
 
                 StringBuilder sb = new StringBuilder();
-                sb.append("<span style=\"display: inline-block; vertical-align: middle; white-space: pre; font-family: SimHei,SimSun,STHeiti,Menlo,Monaco,Consolas,Courier New,monospace;\">");
+                sb.append("<span style=\"display: inline-block; vertical-align: middle; white-space: pre; line-height: 100%; letter-spacing: 0; word-spacing: 0; font-family: SimHei,SimSun-ExtB,MingLiU-ExtB,Menlo,Monaco,Consolas,Courier,monospace;\">");
                 char[] imageChars = imageContent.toCharArray();
                 for (int index = 0; index < imageChars.length; ++index) {
                     int distance = imageChars[index] - '\u2500';
-                    if (distance >= 0 && distance < boxDrawings.length) {
-                        imageChars[index] = boxDrawings[distance];
+                    if (distance >= 0 && distance < asciiBoxDrawingCharacters.length) {
+                        imageChars[index] = asciiBoxDrawingCharacters[distance];
                     }
-                    if (imageChars[index] == '&') {
-                        sb.append("&amp;");
-                    } else if (imageChars[index] == '<') {
-                        sb.append("&lt;");
-                    } else if (imageChars[index] == '>') {
-                        sb.append("&gt;");
-                    } else if (imageChars[index] == ' ') {
-                        sb.append("&nbsp;");
-                    } else if (imageChars[index] == '\n' || imageChars[index] == '\r') {
-                        sb.append("<br/>");
-                    } else {
-                        sb.append(imageChars[index]);
+                    switch (imageChars[index]) {
+                        case '&':
+                            sb.append("&amp;");
+                            break;
+
+                        case '<':
+                            sb.append("&lt;");
+                            break;
+
+                        case '>':
+                            sb.append("&gt;");
+                            break;
+
+                        case ' ':
+                            sb.append("&nbsp;");
+                            break;
+
+                        case '\n':
+                        case '\r':
+                            sb.append("<br>");
+                            break;
+
+                        default:
+                            sb.append(imageChars[index]);
+                            break;
                     }
                 }
                 sb.append("</span>");
