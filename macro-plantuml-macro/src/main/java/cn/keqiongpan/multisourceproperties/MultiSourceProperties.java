@@ -7,22 +7,20 @@ import java.util.Map;
 
 public class MultiSourceProperties {
 
-    private Map<String, PropertyResolver<?>> sourcePropertyResolvers = new HashMap<>();
+    private final Map<String, PropertyResolver> sourcePropertyResolvers = new HashMap<>();
 
-    public void putResolver(String sourceName, PropertyResolver<?> propertyResolver) {
+    public void putResolver(String sourceName, PropertyResolver propertyResolver) {
         this.sourcePropertyResolvers.put(sourceName, propertyResolver);
     }
 
-    public <V> V get(PropertyDescriptor<V> propertyDescriptor) {
-        PropertyCoordinate<?>[] coordinates = propertyDescriptor.getOrderedCoordinates();
+    public <V> V get(PropertyDescriptor propertyDescriptor) {
+        PropertyCoordinate[] coordinates = propertyDescriptor.getOrderedCoordinates();
         if (coordinates == null) {
             return null;
         }
 
-        for (PropertyCoordinate<?> coordinate : coordinates) {
-            PropertyResolver<Object> resolver = (PropertyResolver<Object>) this.sourcePropertyResolvers.get(
-                    coordinate.getSourceName()
-            );
+        for (PropertyCoordinate coordinate : coordinates) {
+            PropertyResolver resolver = this.sourcePropertyResolvers.get(coordinate.getSourceName());
             if (resolver == null) {
                 continue;
             }

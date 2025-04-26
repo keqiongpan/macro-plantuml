@@ -23,6 +23,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import cn.keqiongpan.multisourceproperties.MultiSourceProperties;
+import cn.keqiongpan.multisourceproperties.PropertyCoordinate;
+import cn.keqiongpan.multisourceproperties.PropertyDescriptor;
+import cn.keqiongpan.multisourceproperties.PropertyResolver;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.contrib.plantuml.PlantUMLConfiguration;
@@ -44,6 +48,38 @@ public class DefaultPlantUMLConfiguration implements PlantUMLConfiguration
     @Inject
     @Named("xwikiproperties")
     private ConfigurationSource xwikiPropertiesConfigurationSource;
+
+    public enum PlantUMLProperties {
+
+        SERVER_URL(new PropertyDescriptor("server", String.class, true,
+                new PropertyCoordinate("macro", "server"),
+                new PropertyCoordinate("plantuml", "server"),
+                new PropertyCoordinate("xwikiproperties", "plantuml.server"),
+                new PropertyCoordinate("env", "PLANTUML_SERVER"),
+                new PropertyCoordinate("default", "https://www.plantuml.com/")
+        ));
+
+        private final PropertyDescriptor propertyDescriptor;
+
+        PlantUMLProperties(PropertyDescriptor propertyDescriptor) {
+            this.propertyDescriptor = propertyDescriptor;
+        }
+
+        public PropertyDescriptor getPropertyDescriptor() {
+            return propertyDescriptor;
+        }
+    }
+
+    public DefaultPlantUMLConfiguration() {
+        MultiSourceProperties msp = new MultiSourceProperties();
+        msp.putResolver("plantuml", key -> plantUMLConfigurationSource.getProperty(key));
+        msp.putResolver("xwikiproperties", key -> xwikiPropertiesConfigurationSource.getProperty(key));
+        msp.putResolver("env", System::getenv);
+        msp.putResolver("default", key -> key);
+
+        String serverUrl = msp.get(PlantUMLProperties.SERVER_URL.getPropertyDescriptor());
+
+    }
 
     @Override
     public String getPlantUMLServerURL()

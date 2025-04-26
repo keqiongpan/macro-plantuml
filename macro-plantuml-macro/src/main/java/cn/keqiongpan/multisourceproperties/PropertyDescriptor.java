@@ -2,26 +2,26 @@ package cn.keqiongpan.multisourceproperties;
 
 import java.util.Map;
 
-public class PropertyDescriptor<V> {
+public class PropertyDescriptor {
 
     private final String name;
-    private final Class<V> valueType;
+    private final Class<?> valueType;
     private final boolean valuableEmpty;
     private final Map<Object, Object> additionalParameters;
-    private final PropertyCoordinate<?>[] orderedCoordinates;
+    private final PropertyCoordinate[] orderedCoordinates;
 
     public PropertyDescriptor(String name,
-                              Class<V> valueType,
+                              Class<?> valueType,
                               boolean valuableEmpty,
-                              PropertyCoordinate<?>... orderedCoordinates) {
+                              PropertyCoordinate... orderedCoordinates) {
         this(name, valueType, valuableEmpty, null, orderedCoordinates);
     }
 
     public PropertyDescriptor(String name,
-                              Class<V> valueType,
+                              Class<?> valueType,
                               boolean valuableEmpty,
                               Map<Object, Object> additionalParameters,
-                              PropertyCoordinate<?>... orderedCoordinates) {
+                              PropertyCoordinate... orderedCoordinates) {
         this.name = name;
         this.valueType = valueType;
         this.valuableEmpty = valuableEmpty;
@@ -33,7 +33,7 @@ public class PropertyDescriptor<V> {
         return name;
     }
 
-    public Class<V> getValueType() {
+    public Class<?> getValueType() {
         return valueType;
     }
 
@@ -45,7 +45,7 @@ public class PropertyDescriptor<V> {
         return additionalParameters;
     }
 
-    public PropertyCoordinate<?>[] getOrderedCoordinates() {
+    public PropertyCoordinate[] getOrderedCoordinates() {
         return orderedCoordinates;
     }
 
